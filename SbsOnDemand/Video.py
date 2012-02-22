@@ -8,7 +8,6 @@ except ImportError:
     import json
 import urllib
 import config
-import urlparse
 from Category import Category
 from Media import Media
 
@@ -16,11 +15,6 @@ from Media import Media
 class NoIDException(Exception):
     def __str__(self):
         return "No ID Specified"
-
-## This exception is raised when a method expects an RTMP URL, but doesn't have one
-class NotRTMPException(Exception):
-    def __str__(self):
-        return "Not an RTMP URL"
 
 ## Gets a video from its id
 # @param videoId the ID number of the video
@@ -106,10 +100,3 @@ class Video(object):
     ## @see getMedia
     media = property(getMedia)
     
-    ## Parses properties to get minimum rtmpdump command line
-    # @return a list containing the minimum rtmpdump options. Prepend your $RTMPDUMP, append ["-o",$YOUR_FILE_NAME]
-    def getRtmpDumpCommand(self):
-        o = urlparse.urlparse(self.baseUrl)
-        if o.scheme!='rtmp':
-            raise NotRTMPException()
-        return ['--host',o.host,'--app',o.path,'--playpath',self.videoUrl]

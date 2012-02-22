@@ -2,10 +2,16 @@
 # Module for managing a/v media
 
 import urllib
+import urlparse
 
 ## Represents an exception that occurs when a method is invoked on a media that doesn't support that method
 class InvalidMediaType(Exception):
     pass
+
+## This exception is raised when a method expects an RTMP URL, but doesn't have one
+class NotRTMPException(Exception):
+    def __str__(self):
+        return "Not an RTMP URL"
 
 ## Represents a media (rendition) for a single video
 class Media(object):
@@ -118,4 +124,12 @@ class Media(object):
     videoUrl = property(getVideoUrl)
     ## @see getCaptions
     captions = property(getCaptions)
-
+    
+    ## Parses properties to get minimum rtmpdump command line
+    # @return a list containing the minimum rtmpdump options. Prepend your $RTMPDUMP and ["-o",$YOUR_FILE_NAME]
+    def getRtmpdumpCommand(self):
+        o = urlparse.urlparse(self.baseUrl)
+        if o.scheme!='rtmp':
+            raise NotRTMPException()
+        #[1:] because it includes the initial slash, which causes much barfing on the other side.
+        return ['--host',o.hostname,'--app',o.path[1:],'--playpath',self.videoUrl]
