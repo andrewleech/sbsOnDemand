@@ -40,7 +40,7 @@ def choose(options, allow_multi):
 
 def download_video(video):
 	possibleMedia = video.getMedia()['content']
-	possibleMedia.sort(key=lambda c: abs(c.bitrate - bitrate))
+	possibleMedia.sort(key=lambda c: abs(c.bitrate - bitrate*1000))
 	media = possibleMedia[0]
 	filename = "{0} ({1}K).flv".format(video.title,media.bitrate/1000)
 	if media.baseUrl.startswith("rtmp://"):
