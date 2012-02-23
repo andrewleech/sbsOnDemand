@@ -80,6 +80,7 @@ def download_urllib(filename, mediaEntry):
 		dst.close()
 
 def main():
+	print "Script to download programs from the SBS On-Demand service.  Please don't panic - I'm retrieving the feed of all the programs available... Which it turns out takes some time :)"
 	programs = SbsOnDemand.Feed.getDefaultFeeds()['Programs']
 	possibleVideos = programs.getVideos(itemsPerPage=programs.totalResults)
 	videosByCategory = dict()
