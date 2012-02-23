@@ -43,6 +43,7 @@ def download_video(video):
 def download_rtmp(filename, mediaEntry):
 	cmd = [
 		"rtmpdump",
+		"--resume",
 		"-o", filename
 	] + mediaEntry.getRtmpdumpCommand()
 	try:
