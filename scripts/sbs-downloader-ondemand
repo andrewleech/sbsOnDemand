@@ -59,7 +59,7 @@ def download_rtmp(filename, mediaEntry):
 	try:
 		p = subprocess.Popen(cmd)
 		p.wait()
-	except WindowsError, e:
+	except OSError, e:
 		print "Couldn't execute ", cmd
 		print "Is rtmpdump.exe present?"
 		print "The error experienced is ", e
