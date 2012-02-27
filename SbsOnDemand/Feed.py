@@ -86,11 +86,11 @@ class Feed(object):
             raise Exception("Feed ID not specified")
         
         # Build the URL of the feed
-        query = self.filter
-        query['form'] = 'json'
+        # This way because it turns out SBS cares about form=json being first...
+        query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
         if count is True:
-            query['count'] = 'true'
-        query['range'] = str(startIndex) + '-' + str(startIndex + itemsPerPage)
+            query.append(('count', 'true'))
+        query += self.filter.items()
         url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
        
         # Fetch the feed
