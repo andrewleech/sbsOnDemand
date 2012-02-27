@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='SbsOnDemand',
-      version='0.0.20120223',
+      version='0.0.20120228',
       author='Michael van der Kolff',
       author_email='mvanderkolff@gmail.com',
       url='https://github.com/mvanderkolff/sbsOnDemand',
