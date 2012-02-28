@@ -10,15 +10,17 @@
 # 
 # The module is object-oriented, however it is recommended that you let the package create the objects
 # using either the static functions within each module or calling an object's method rather than directly
-# using the class constructors. Properties are either pre-populated or are populated on request.
+# using the class constructors. Properties are either pre-populated or are populated on request as getters.
+# As such, there may be a delay when accessing properties or methods of objects as the functions are blocking.
+# It is therefore recommended that if used in GUI programs that data is accessed from a separate thread.
 #
 # @subsection example_feed Example: Finding a video feed
 # %Video feeds can be retrieved using static methods in Feed. 
 #
 # This example finds all the feeds from the SBS On Demand menu, and chooses the one entitled 'Program'
 # @code
-# import sbs.Feed
-# feeds = sbs.Feed.getMenuFeeds()
+# import SbsOnDemand.Feed
+# feeds = SbsOnDemand.Feed.getMenuFeeds()
 # feed = feeds['Programs']['feed']
 # @endcode
 #
@@ -32,8 +34,8 @@
 # @subsection example_video_id Example: Getting a video title when we know the ID number
 # This example gets a video object for a specific video ID, and then prints the video's title
 # @code
-# import sbs.Video
-# video = sbs.Video.getVideo(videoID)
+# import SbsOnDemand.Video
+# video = SbsOnDemand.Video.getVideo(videoID)
 # print video.title
 # @endcode
 # @subsection example_media Example: Getting a video's content url for the first media rendition
