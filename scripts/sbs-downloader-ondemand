@@ -78,7 +78,7 @@ def download_urllib(filename, mediaEntry):
 	print "Downloading: %s -> %s" % (url, filename)
 	try:
 		src = urllib.urlopen(url)
-		dst = open(filename, "w")
+		dst = open(filename, "wb")
 		shutil.copyfileobj(src, dst)
 	except KeyboardInterrupt:
 		print "\nCancelled", url
@@ -86,14 +86,17 @@ def download_urllib(filename, mediaEntry):
 		src.close()
 		dst.close()
 
+def getProgramName(video):
+	return video.programName or video.keywords[0]
+
 def main():
 	print "Script to download programs from the SBS On-Demand service.  Please don't panic - I'm retrieving the feed of all the programs available... Which it turns out takes some time :)"
 	programs = SbsOnDemand.Feed.getDefaultFeeds()['Programs']
 	possibleVideos = programs.getVideos(itemsPerPage=programs.totalResults)
 	videosByCategory = dict()
 	for video in possibleVideos:
-		videosByCategory[video.programName] = videosByCategory.get(video.programName,dict())
-		videosByCategory[video.programName][video.title] = video
+		videosByCategory[getProgramName(video)] = videosByCategory.get(getProgramName(video),dict())
+		videosByCategory[getProgramName(video)][video.title] = video
 	while True:
 		category = choose(videosByCategory, allow_multi=False)
 		if category is None:
