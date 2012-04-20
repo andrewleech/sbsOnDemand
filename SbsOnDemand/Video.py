@@ -6,8 +6,9 @@ try:
     import simplejson as json
 except ImportError: 
     import json
-import urllib
+import urllib, urlparse
 import config
+import xml,html,cssselect from lxml
 from Category import Category
 from Media import Media
 
@@ -63,14 +64,40 @@ class Video(object):
         self._media['content'] = []
         self._media['thumbnails'] = []
         self._mediaHasUrl = True
+        rtmpSecured = False
         mediaContent = params.get('media$content',[])
         for media in mediaContent:
-            mediaObj = Media(media)
-            self._media['content'].append(mediaObj)
-            if mediaObj.url is None:
-                self._mediaHasUrl = False
-            if self.duration is None and mediaObj.duration is not None:
-                self.duration = mediaObj.duration
+            x=media.get('plfile$assetTypes',[])
+            if (len(x) > 0 and x[0][:4] == "RTMP"):
+                rtmpSecured = True
+        if rtmpSecured:
+            #Parse web page and make Media objects from SMIL instead
+            opener = urllib.FancyURLopener(config.PROXY)
+            smil_uri = ''
+            with f as opener.open("${0}/${1}".format(config.ONDEMAND_UI_BASE_URI,self.id):
+                web_page = html.parse(f)
+                selector = cssselect.CSSSelector(ONDEMAND_UI_VIDEO_CSS_QUERY)
+                video_part = selector(web_page)
+                if (len(video_part) < 1):
+                    echo "Can't find the video part on the webpage.  HELP!"
+                    pass #Need to complain loudly
+                else:
+                    p = urlparse.parse_qs(video_part[0])
+                    smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
+                    if (smil_uri != ''):
+                        smil_uri += "&format=smil"
+            with f as opener.open(smil_uri):
+                smilDoc = xml.parse(f)
+                selector = cssselect.CSSSelector("switch video") # This produces a lot of videos - we'll use the rule that first bitrate wins
+                pass #Need to make mediaObjs, and make media that way.
+        else:
+            for media in mediaContent:
+                mediaObj = Media(media)
+                self._media['content'].append(mediaObj)
+                if mediaObj.url is None:
+                    self._mediaHasUrl = False
+                if self.duration is None and mediaObj.duration is not None:
+                    self.duration = mediaObj.duration
         mediaThumbnails = params.get('media$thumbnails',[])
         for media in mediaThumbnails:
             mediaObj = Media(media)
