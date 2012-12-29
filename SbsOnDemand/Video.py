@@ -43,6 +43,7 @@ class Video(object):
             self.id = re.search("\d+",videoId).group(0)
         else:
             self.id = None
+        self.url = None
         self.title = params.get('title',None)
         self.description = params.get('description',None)
         self.thumbnail = params.get('plmedia$defaultThumbnailUrl',None)
@@ -90,7 +91,8 @@ class Video(object):
             if len(smil_uri) > 0:
                 #print smil_uri
                 f = opener.open(smil_uri)
-                print f.read()
+                m = re.search('<video.*?src="(.*?)".*?>', f.read())
+                self.url = m.group(1)
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
