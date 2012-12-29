@@ -75,19 +75,20 @@ class Video(object):
             #Parse web page and make Media objects from SMIL instead
             opener = urllib.FancyURLopener(config.PROXY)
             smil_uri = ''
-            with opener.open("${0}/${1}".format(config.ONDEMAND_UI_BASE_URI,self.id)) as f:
-                web_page = html.parse(f)
-                selector = cssselect.CSSSelector(ONDEMAND_UI_VIDEO_CSS_QUERY)
-                video_part = selector(web_page)
-                if (len(video_part) < 1):
-                    print "Can't find the video part on the webpage.  HELP!"
-                    pass #Need to complain loudly
-                else:
-                    p = urlparse.parse_qs(video_part[0])
-                    smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
-                    if (smil_uri != ''):
-                        smil_uri += "&format=smil"
-            with opener.open(smil_uri) as f:
+            f = opener.open("{0}/{1}".format(config.ONDEMAND_UI_BASE_URI,self.id))
+            web_page = html.parse(f)
+            selector = cssselect.CSSSelector(config.ONDEMAND_UI_VIDEO_CSS_QUERY)
+            video_part = selector(web_page)
+            if (len(video_part) < 1):
+                print "Can't find the video part on the webpage.  HELP!"
+                pass #Need to complain loudly
+            else:
+                p = urlparse.parse_qs(video_part[0])
+                smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
+                if (smil_uri != ''):
+                    smil_uri += "&format=smil"
+            if len(smil_uri) > 0:
+                f = opener.open(smil_uri)
                 smilDoc = xml.parse(f)
                 selector = cssselect.CSSSelector("switch video") # This produces a lot of videos - we'll use the rule that first bitrate wins
                 pass #Need to make mediaObjs, and make media that way.
