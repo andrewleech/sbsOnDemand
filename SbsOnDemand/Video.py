@@ -8,8 +8,7 @@ except ImportError:
     import json
 import urllib, urlparse
 import config
-import xml
-from lxml import html,cssselect
+import xml.etree.ElementTree as xml
 from Category import Category
 from Media import Media
 
@@ -77,14 +76,13 @@ class Video(object):
             smil_uri = ''
             fullurl = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
             f = opener.open(fullurl)
-            web_page = html.parse(f)
-            selector = cssselect.CSSSelector(config.ONDEMAND_UI_VIDEO_CSS_QUERY)
-            video_part = selector(web_page)
-            if (len(video_part) < 1):
+            og_video = re.findall('<.*?og:video.*?>', f.read())
+            if (len(og_video) < 1):
                 print "Can't find the video part on the webpage.  HELP!"
                 pass #Need to complain loudly
             else:
-                videourl = video_part[0].get('content')
+                m = re.search('content="(.+?)"', og_video[0])
+                videourl = m.group(1)
                 p = urlparse.parse_qs(videourl)
                 smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
                 if (smil_uri != ''):
@@ -92,13 +90,7 @@ class Video(object):
             if len(smil_uri) > 0:
                 #print smil_uri
                 f = opener.open(smil_uri)
-                smilDoc = html.parse(f)
-                #print html.etree.tostring(smilDoc)
-                selector = cssselect.CSSSelector("switch video") # This produces a lot of videos - we'll use the rule that first bitrate wins
-                smil_part = selector(smilDoc)
-                for sp in smil_part:
-                    vidsrc = sp.get('src')
-                    vidbr  = sp.get('system-bitrate')
+                print f.read()
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
