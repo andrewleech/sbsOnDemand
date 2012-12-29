@@ -90,11 +90,15 @@ class Video(object):
                 if (smil_uri != ''):
                     smil_uri += "&format=smil"
             if len(smil_uri) > 0:
-                print smil_uri
+                #print smil_uri
                 f = opener.open(smil_uri)
                 smilDoc = html.parse(f)
+                #print html.etree.tostring(smilDoc)
                 selector = cssselect.CSSSelector("switch video") # This produces a lot of videos - we'll use the rule that first bitrate wins
-                pass #Need to make mediaObjs, and make media that way.
+                smil_part = selector(smilDoc)
+                for sp in smil_part:
+                    vidsrc = sp.get('src')
+                    vidbr  = sp.get('system-bitrate')
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
