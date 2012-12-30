@@ -63,6 +63,9 @@ def getFeedFromId(feedId):
 ## Represents a video feed
 class Feed(object):
     
+    def __str__(self):
+        return self.title
+
     ## Creates a Feed object
     # @param feed the feed to be parsed
     def __init__(self,feed):
@@ -76,6 +79,16 @@ class Feed(object):
         self._videos = None
         self._parseFeed(feed)
         
+    # Build the URL of the feed
+    # This way because it turns out SBS cares about form=json being first...
+    def _feedUrl(self, count, startIndex, itemsPerPage):
+        query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
+        if count is True:
+            query.append(('count', 'true'))
+        query += self.filter.items()
+        url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
+        return url
+
     ## Downloads the feed, allowing it to be parsed
     # @param count whether to ask for the total number of results or not
     # @param startIndex the start index (offset) of entries within the feed to obtain
@@ -84,30 +97,24 @@ class Feed(object):
         # We can't retrieve videos without a feed id
         if self.feedId is None:
             raise Exception("Feed ID not specified")
-        
-        # Build the URL of the feed
-        # This way because it turns out SBS cares about form=json being first...
-        query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
-        if count is True:
-            query.append(('count', 'true'))
-        query += self.filter.items()
-        url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
-       
+
+        # Build feed url
+        url = self._feedUrl(count, startIndex, itemsPerPage)
+
         # Fetch the feed
         page = urllib.urlopen(url)
         feed = json.load(page)
         self._parseFeed(feed)
-        
-    ## Parses a feed
-    # @param feed the feed to be parsed, in dict form
-    def _parseFeed(self, feed):
-        self.title = feed.get("name", self.title)
-        self.thumbnail = feed.get("thumbnail", self.thumbnail)
-        self.filter = feed.get("filter", self.filter)
+
+    def _setFeedInfo(self, feed):
+        self.title         = feed.get("title", self.title)
+        self.thumbnail     = feed.get("thumbnail", self.thumbnail)
+        self.filter        = feed.get("filter", self.filter)
         self._totalResults = feed.get('totalResults', self._totalResults)
-        self.startIndex = feed.get('startIndex', self.startIndex)
-        self.itemsPerPage = feed.get('itemsPerPage', self.itemsPerPage)
-    
+        self.startIndex    = feed.get('startIndex', self.startIndex)
+        self.itemsPerPage  = feed.get('itemsPerPage', self.itemsPerPage)
+        
+    def _setFeedId(self, feed):
         if feed.has_key("feedId"):
             self.feedId = feed["feedId"]
         else:
@@ -130,7 +137,14 @@ class Feed(object):
                         self.filter[k] = v
                     else:
                         self.filter[k] = v[0] 
-        
+
+    ## Parses a feed
+    # @param feed the feed to be parsed, in dict form
+    def _parseFeed(self, feed):
+    
+        self._setFeedInfo(feed)
+        self._setFeedId(feed)
+
         # Form is not a filter, get rid of it
         if self.filter.has_key('form'):
             del self.filter['form']

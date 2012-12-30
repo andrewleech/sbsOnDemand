@@ -33,9 +33,7 @@ class Video(object):
     def __init__(self,params):
         self._parseVideo(params)
         
-    ## Parses video data and populates Video data members
-    # @param params the video data to be parsed
-    def _parseVideo(self,params):
+    def _setInfo(self, params):
         videoId = params.get('id',None)
         if videoId is not None and videoId.isdigit():
             self.id = str(videoId)
@@ -43,8 +41,6 @@ class Video(object):
             self.id = re.search("\d+",videoId).group(0)
         else:
             self.id = None
-        self.url = None
-        self.bitrate = 9999999
         self.title = params.get('title',None)
         self.description = params.get('description',None)
         self.thumbnail = params.get('plmedia$defaultThumbnailUrl',None)
@@ -66,66 +62,23 @@ class Video(object):
         self._media['content'] = []
         self._media['thumbnails'] = []
         self._mediaHasUrl = True
-        rtmpSecured = False
+
+    ## Parses video data and populates Video data members
+    # @param params the video data to be parsed
+    def _parseVideo(self,params):
+
+        self._setInfo(params)
+
         mediaContent = params.get('media$content',[])
         for media in mediaContent:
-            x=media.get('plfile$assetTypes',[])
-            if (len(x) > 0 and x[0][:4] == "RTMP"):
-                rtmpSecured = True
-        if rtmpSecured:
-            #Parse web page and make Media objects from SMIL instead
-            opener = urllib.FancyURLopener(config.PROXY)
-            smil_uri = ''
-            fullurl = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
-            f = opener.open(fullurl)
-            og_video = re.findall('<.*?og:video.*?>', f.read())
-            if (len(og_video) < 1):
-                print "Can't find the video part on the webpage.  HELP!"
-                pass #Need to complain loudly
-            else:
-                m = re.search('content="(.+?)"', og_video[0])
-                videourl = m.group(1)
-                p = urlparse.parse_qs(videourl)
-                smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
-                if (smil_uri != ''):
-                    smil_uri += "&format=smil"
-            if len(smil_uri) > 0:
-                f = opener.open(smil_uri)
-                smil_content = f.read()
-                self.url = self._watchableUrlFromSmil(smil_content)
-                print self.url
-        else:
-            for media in mediaContent:
-                mediaObj = Media(media)
-                match = re.search('(\d+)K.mp4', mediaObj.url)
-                if match:
-                    bitrate = int(match.group(1))
-                    if bitrate < self.bitrate:
-                        self.bitrate = bitrate
-                        self.url = mediaObj.url
-                        print self.url
-                self._media['content'].append(mediaObj)
-                if mediaObj.url is None:
-                    self._mediaHasUrl = False
-                if self.duration is None and mediaObj.duration is not None:
-                    self.duration = mediaObj.duration
+            media['id'] = self.id
+            mediaObj = Media(media)
+            self._media['content'].append(mediaObj)
+
         mediaThumbnails = params.get('media$thumbnails',[])
         for media in mediaThumbnails:
             mediaObj = Media(media)
             self._media['thumbnails'].append(mediaObj)
-            if mediaObj.url is None:
-                self._mediaHasUrl = False
-                
-    ## Get the associated videos from smil file
-    def _watchableUrlFromSmil(self, smil_content):
-        videos = re.findall('<video.*?src="(.+?akamai.+?)".*?>', smil_content)
-        videos.reverse()
-        for video in videos:
-            match = re.search('(\d+)K.mp4', video)
-            bitrate = match.group(1)
-            url = re.sub('(\d+)K.mp4', r',\1,K.mp4', video)
-            return url + config.VALID_URL_SUFFIX
-        return ''
 
     ## Downloads the video data, allowing it to be parsed
     def _updateVideo(self):

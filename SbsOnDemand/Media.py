@@ -3,6 +3,11 @@
 
 import urllib
 import urlparse
+import config
+import re
+
+TYPE_RTMP   = 'RTMP secured'
+TYPE_PUBLIC = 'Public'
 
 ## Represents an exception that occurs when a method is invoked on a media that doesn't support that method
 class InvalidMediaType(Exception):
@@ -21,7 +26,7 @@ class Media(object):
     def __init__(self,params):
         self.audioChannels = params.get('plfile$audioChannels',None)
         self.audioSampleRate = params.get('plfile$audioSampleRate',None)
-        self.bitrate = params.get('plfile$bitrate',None)
+        self.bitrate = int(params.get('plfile$bitrate',None))
         self.checksums = params.get('plfile$checksums',None)
         self.contentType = params.get('plfile$contentType',None)
         self.duration = params.get('plfile$duration',None)
@@ -36,6 +41,7 @@ class Media(object):
         self.url = params.get('plfile$downloadUrl',None)
         self.width = params.get('plfile$width',None)
         self.assetTypes = params.get('plfile$assetTypes',None)
+        self.id = params.get('id', None)
         self._smil = None
         self._smilDOM = None
         
@@ -51,12 +57,26 @@ class Media(object):
         if self.contentType != "video":
             raise InvalidMediaType();
         if self._smil is None:
-            if self.url is None:
-                raise Exception("No URL Specified For Media")
-            fp = urllib.urlopen(self.url)
-            self._smil = fp.read()
-        return self._smil
-    
+            smil_uri = ''
+            opener = urllib.FancyURLopener(config.PROXY)
+            fullurl = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
+            f = opener.open(fullurl)
+            og_video = re.findall('<.*?og:video.*?>', f.read())
+            if (len(og_video) < 1):
+                print "Can't find the video part on the webpage.  HELP!"
+                pass #Need to complain loudly
+            else:
+                m = re.search('content="(.+?)"', og_video[0])
+                videourl = m.group(1)
+                p = urlparse.parse_qs(videourl)
+                smil_uri = p.get(config.RELEASE_URL_KEY,[''])[0]
+                if (smil_uri != ''):
+                    smil_uri += "&format=smil"
+            if len(smil_uri) > 0:
+                f = opener.open(smil_uri)
+                self._smil = f.read()
+                return self._smil
+
     ## Get the SMIL data parsed by xml.dom.minidom
     # @return a Document parsed by xml.dom.minidom
     # @warning This function is only valid for video media, calling it on other contentTypes will trigger a InvalidMediaType exception
@@ -86,18 +106,22 @@ class Media(object):
         for meta in self._smilDOM.getElementsByTagName('meta'):
             if len(meta.getAttribute('base'))>0:
                 return meta.getAttribute('base')
-    
+
     ## Get the video url
     # @return the video url (usually for rtmp streams in the form of "mp4:path/video.mp4") 
     # @warning This function is only valid for video media, calling it on other contentTypes will trigger a InvalidMediaType exception
     def getVideoUrl(self):
+
         if self.contentType != "video":
             raise InvalidMediaType();
-        if self._smilDOM is None:
-            self._parseSMIL()
-        for video in self._smilDOM.getElementsByTagName('video'):
-            if len(video.getAttribute('src'))>0:
-                return video.getAttribute('src')
+
+        if self.assetTypes[0] == TYPE_PUBLIC:
+            return self.url
+        elif self.assetTypes[0] == TYPE_RTMP:
+            medias = self._videosFromSmil()
+            return medias[self.bitrate]
+            #return medias[self.bitrate]
+            #return self._watchableUrlFromSmil()
     
     ## Get captions for the media
     # @return an array of dict objects, each containing the src, lang, and type of the caption    
@@ -118,18 +142,26 @@ class Media(object):
                              })
         return captions
     
+    def _watchableUrlFromSrc(self,src):
+        url = re.sub('(\d+)K.mp4', r',\1,K.mp4', src)
+        return url + config.VALID_URL_SUFFIX
+
+    ## Get the associated videos from smil file
+    def _videosFromSmil(self):
+        if self._smilDOM is None:
+            self._parseSMIL()
+
+        medias = {}
+        for video in self._smilDOM.getElementsByTagName('video'):
+            if len(video.getAttribute('src'))>0:
+                bitrate = int(video.getAttribute('system-bitrate'))
+                src = video.getAttribute('src')
+                medias[bitrate] = self._watchableUrlFromSrc(src)
+        return medias
+    
     ## @see getBaseUrl
     baseUrl = property(getBaseUrl)
     ## @see getVideoUrl
     videoUrl = property(getVideoUrl)
     ## @see getCaptions
     captions = property(getCaptions)
-    
-    ## Parses properties to get minimum rtmpdump command line
-    # @return a list containing the minimum rtmpdump options. Prepend your $RTMPDUMP and ["-o",$YOUR_FILE_NAME]
-    def getRtmpdumpCommand(self):
-        o = urlparse.urlparse(self.baseUrl)
-        if o.scheme!='rtmp':
-            raise NotRTMPException()
-        #[1:] because it includes the initial slash, which causes much barfing on the other side.
-        return ['--host',o.hostname,'--app',o.path[1:],'--playpath',self.videoUrl]
