@@ -22,6 +22,7 @@ ONDEMAND_UI_VIDEO_CSS_QUERY = 'meta[property="og:video"]'
 MPX_FEEDID = "dYtmxB"
 SEARCH_FEEDID = "search"
 ALLDATA_FEEDID = "CxeOeDELXKEv"
+SINGLE_FEED_PREFIX = 'http://feed.theplatform.com/f/Bgtm9B/sbs-section-programs/'
 DEFAULT_FEEDS = [
     {"name": "Programs", "feedId": "section-programs"},
     {"name": "Clips", "feedId": "section-clips"},

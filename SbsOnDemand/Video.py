@@ -129,7 +129,7 @@ class Video(object):
 
     ## Downloads the video data, allowing it to be parsed
     def _updateVideo(self):
-        url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + config.ALLDATA_FEEDID + '/' + self.id + '?' + urllib.urlencode({"form":"json"})
+        url = config.SINGLE_FEED_PREFIX + self.id + '?' + urllib.urlencode({"form":"json"})
         page = urllib.urlopen(url)
         data = json.load(page)
         self._parseVideo(data)
