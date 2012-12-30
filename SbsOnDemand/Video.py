@@ -44,6 +44,7 @@ class Video(object):
         else:
             self.id = None
         self.url = None
+        self.bitrate = 9999999
         self.title = params.get('title',None)
         self.description = params.get('description',None)
         self.thumbnail = params.get('plmedia$defaultThumbnailUrl',None)
@@ -96,7 +97,13 @@ class Video(object):
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
-                self.url = mediaObj.url
+                match = re.search('(\d+)K.mp4', mediaObj.url)
+                if match:
+                    bitrate = int(match.group(1))
+                    if bitrate < self.bitrate:
+                        self.bitrate = bitrate
+                        self.url = mediaObj.url
+                        print self.url
                 self._media['content'].append(mediaObj)
                 if mediaObj.url is None:
                     self._mediaHasUrl = False
