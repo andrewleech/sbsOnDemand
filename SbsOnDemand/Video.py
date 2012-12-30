@@ -89,10 +89,10 @@ class Video(object):
                 if (smil_uri != ''):
                     smil_uri += "&format=smil"
             if len(smil_uri) > 0:
-                #print smil_uri
                 f = opener.open(smil_uri)
-                m = re.search('<video.*?src="(.*?)".*?>', f.read())
-                self.url = m.group(1)
+                smil_content = f.read()
+                self.url = self._watchableUrlFromSmil(smil_content)
+                print self.url
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
@@ -108,6 +108,17 @@ class Video(object):
             if mediaObj.url is None:
                 self._mediaHasUrl = False
                 
+    ## Get the associated videos from smil file
+    def _watchableUrlFromSmil(self, smil_content):
+        videos = re.findall('<video.*?src="(.+?akamai.+?)".*?>', smil_content)
+        videos.reverse()
+        for video in videos:
+            match = re.search('(\d+)K.mp4', video)
+            bitrate = match.group(1)
+            url = re.sub('(\d+)K.mp4', r',\1,K.mp4', video)
+            return url + config.VALID_URL_SUFFIX
+        return ''
+
     ## Downloads the video data, allowing it to be parsed
     def _updateVideo(self):
         url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + config.ALLDATA_FEEDID + '/' + self.id + '?' + urllib.urlencode({"form":"json"})
