@@ -7,4 +7,4 @@ sys.path.append('../')
 import SbsOnDemand.Feed
 
 programs = SbsOnDemand.Feed.getFeedFromId('section-programs')
-print programs.getVideos()
+print programs.getVideos(itemsPerPage=programs.totalResults)
