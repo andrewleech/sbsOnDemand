@@ -26,7 +26,6 @@ DEFAULT_FEEDS = [
     {"name": "Programs", "feedId": "section-programs"},
     {"name": "Clips", "feedId": "section-clips"},
     {"name": "Events", "feedId": "section-events"},
-    {"name": "Last Chance", "feedId":"videos-lastchance"},
     {"name": "Featured Programs", "feedId":"featured-programs-prod"},
     {"name": "Featured Clips", "feedId":"featured-clips"}
 ]
