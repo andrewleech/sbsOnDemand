@@ -33,7 +33,7 @@ class Media(object):
         self.isDefault = params.get('plfile$isDefault',None)
         self.language = params.get('plfile$language',None)
         self.sourceTime = params.get('plfile$sourceTime',None)
-        self.url = params.get('plfile$url',None)
+        self.url = params.get('plfile$downloadUrl',None)
         self.width = params.get('plfile$width',None)
         self.assetTypes = params.get('plfile$assetTypes',None)
         self._smil = None

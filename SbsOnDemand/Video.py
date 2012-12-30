@@ -96,6 +96,7 @@ class Video(object):
         else:
             for media in mediaContent:
                 mediaObj = Media(media)
+                self.url = mediaObj.url
                 self._media['content'].append(mediaObj)
                 if mediaObj.url is None:
                     self._mediaHasUrl = False
