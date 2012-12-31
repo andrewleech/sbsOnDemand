@@ -17,6 +17,10 @@ class NoIDException(Exception):
     def __str__(self):
         return "No ID Specified"
 
+class NotUsableJson(Exception):
+    def __str__(self):
+        return "The Json object to parse isn't usable"
+
 ## Gets a video from its id
 # @param videoId the ID number of the video
 # @return a Video object
@@ -34,6 +38,8 @@ class Video(object):
         self._parseVideo(params)
         
     def _setInfo(self, params):
+        if (params.has_key('isException')):
+            raise(NotUsableJson)
         videoId = params.get('id',None)
         if videoId is not None and videoId.isdigit():
             self.id = str(videoId)
@@ -85,7 +91,18 @@ class Video(object):
         url = config.SINGLE_FEED_PREFIX + self.id + '?' + urllib.urlencode({"form":"json"})
         page = urllib.urlopen(url)
         data = json.load(page)
-        self._parseVideo(data)
+        try:
+            self._parseVideo(data)
+        except(NotUsableJson):
+            self._getOnDemand()
+
+    def _getOnDemand(self):
+        url = config.ONDEMAND_UI_BASE_URI + self.id + '?' + urllib.urlencode({"form":"json"})
+        print 'Try parse on demand: {0}'.format(url)
+        page = urllib.urlopen(url)
+        m = re.search('vod.cache.video.+?({.+})', page.read())
+        jsonString = m.group(1)
+        self._parseVideo(json.loads(jsonString))
         
     ## Gets the available media associated with the video
     # @param withUrl whether to ensure that the media has a download url
