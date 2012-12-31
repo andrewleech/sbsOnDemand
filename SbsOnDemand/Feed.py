@@ -70,6 +70,7 @@ class Feed(object):
     # @param feed the feed to be parsed
     def __init__(self,feed):
         self.feedId = None
+        self.url = None
         self.title = None
         self.thumbnail = None
         self.filter = {}
@@ -82,6 +83,8 @@ class Feed(object):
     # Build the URL of the feed
     # This way because it turns out SBS cares about form=json being first...
     def _feedUrl(self, count, startIndex, itemsPerPage):
+        if self.url:
+            return self.url
         query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
         if count is True:
             query.append(('count', 'true'))
@@ -95,7 +98,7 @@ class Feed(object):
     # @param itemsPerPage the maximum number of entries to contain within the feed
     def _updateFeed(self, count = False, startIndex = 0, itemsPerPage = 10):
         # We can't retrieve videos without a feed id
-        if self.feedId is None:
+        if self.feedId is None and self.url is None:
             raise Exception("Feed ID not specified")
 
         # Build feed url
@@ -143,7 +146,10 @@ class Feed(object):
     def _parseFeed(self, feed):
     
         self._setFeedInfo(feed)
-        self._setFeedId(feed)
+        try:
+            self._setFeedId(feed)
+        except:
+            self.url = feed.get('url', None)
 
         # Form is not a filter, get rid of it
         if self.filter.has_key('form'):
