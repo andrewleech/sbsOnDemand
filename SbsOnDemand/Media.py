@@ -115,11 +115,16 @@ class Media(object):
         if self.contentType != "video":
             raise InvalidMediaType();
 
+        print self.assetTypes
         if self.assetTypes[0] == TYPE_PUBLIC:
             return self.url
         elif self.assetTypes[0] == TYPE_RTMP:
             medias = self._videosFromSmil()
-            return medias[self.bitrate]
+            try:
+                return self._watchableUrlFromSrc(medias[self.bitrate])
+            except:
+                return medias.items().pop()[1]
+
             #return medias[self.bitrate]
             #return self._watchableUrlFromSmil()
     
@@ -156,7 +161,8 @@ class Media(object):
             if len(video.getAttribute('src'))>0:
                 bitrate = int(video.getAttribute('system-bitrate'))
                 src = video.getAttribute('src')
-                medias[bitrate] = self._watchableUrlFromSrc(src)
+                medias[bitrate] = src
+                print '{0} {1}'.format(bitrate, src)
         return medias
     
     ## @see getBaseUrl
