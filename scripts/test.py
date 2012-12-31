@@ -4,7 +4,11 @@
 import sys
 sys.path.append('../')
 
-import SbsOnDemand.Feed
+import SbsOnDemand.Video
 
-programs = SbsOnDemand.Feed.getFeedFromId('section-programs')
-print programs.getVideos(itemsPerPage=programs.totalResults)
+vid = '13421123590'
+
+video = SbsOnDemand.Video.getVideo(vid)
+
+#video._updateVideo()
+
