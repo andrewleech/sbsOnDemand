@@ -26,7 +26,7 @@ class Media(object):
     def __init__(self,params):
         self.audioChannels = params.get('plfile$audioChannels',None)
         self.audioSampleRate = params.get('plfile$audioSampleRate',None)
-        self.bitrate = int(params.get('plfile$bitrate',None))
+        self.bitrate = params.get('plfile$bitrate',None)
         self.checksums = params.get('plfile$checksums',None)
         self.contentType = params.get('plfile$contentType',None)
         self.duration = params.get('plfile$duration',None)
