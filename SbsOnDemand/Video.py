@@ -6,8 +6,9 @@ try:
     import simplejson as json
 except ImportError: 
     import json
-import urllib
+import urllib, urlparse
 import config
+import xml.etree.ElementTree as xml
 from Category import Category
 from Media import Media
 
@@ -15,6 +16,10 @@ from Media import Media
 class NoIDException(Exception):
     def __str__(self):
         return "No ID Specified"
+
+class NotUsableJson(Exception):
+    def __str__(self):
+        return "The Json object to parse isn't usable"
 
 ## Gets a video from its id
 # @param videoId the ID number of the video
@@ -35,6 +40,8 @@ class Video(object):
     ## Parses video data and populates Video data members
     # @param params the video data to be parsed
     def _parseVideo(self,params):
+        if (params.has_key('isException')):
+            raise(NotUsableJson)
         videoId = params.get('id',None)
         if videoId is not None and videoId.isdigit():
             self.id = str(videoId)
@@ -65,6 +72,7 @@ class Video(object):
         self._mediaHasUrl = True
         mediaContent = params.get('media$content',[])
         for media in mediaContent:
+            media['id'] = self.id
             mediaObj = Media(media)
             self._media['content'].append(mediaObj)
             if mediaObj.url is None:
@@ -80,10 +88,21 @@ class Video(object):
                 
     ## Downloads the video data, allowing it to be parsed
     def _updateVideo(self):
-        url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + config.ALLDATA_FEEDID + '/' + self.id + '?' + urllib.urlencode({"form":"json"})
+        url = config.SINGLE_FEED_PREFIX + self.id + '?' + urllib.urlencode({"form":"json"})
         page = urllib.urlopen(url)
         data = json.load(page)
-        self._parseVideo(data)
+        try:
+            self._parseVideo(data)
+        except(NotUsableJson):
+            self._getOnDemand()
+
+    def _getOnDemand(self):
+        url = config.ONDEMAND_UI_BASE_URI + self.id + '?' + urllib.urlencode({"form":"json"})
+        print 'Try parse on demand: {0}'.format(url)
+        page = urllib.urlopen(url)
+        m = re.search('vod.cache.video.+?({.+})', page.read())
+        jsonString = m.group(1)
+        self._parseVideo(json.loads(jsonString))
         
     ## Gets the available media associated with the video
     # @param withUrl whether to ensure that the media has a download url

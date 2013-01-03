@@ -67,6 +67,7 @@ class Feed(object):
     # @param feed the feed to be parsed
     def __init__(self,feed):
         self.feedId = None
+        self.url = None
         self.title = None
         self.thumbnail = None
         self.filter = {}
@@ -82,11 +83,13 @@ class Feed(object):
     # @param itemsPerPage the maximum number of entries to contain within the feed
     def _updateFeed(self, count = False, startIndex = 0, itemsPerPage = 10):
         # We can't retrieve videos without a feed id
-        if self.feedId is None:
+        if self.feedId is None and self.url is None:
             raise Exception("Feed ID not specified")
         
         # Build the URL of the feed
         # This way because it turns out SBS cares about form=json being first...
+        if self.url:
+            return self.url
         query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
         if count is True:
             query.append(('count', 'true'))
@@ -108,6 +111,23 @@ class Feed(object):
         self.startIndex = feed.get('startIndex', self.startIndex)
         self.itemsPerPage = feed.get('itemsPerPage', self.itemsPerPage)
     
+        try:
+            self._setFeedId(feed)
+        except:
+            self.url = feed.get('url', None)
+
+        # Form is not a filter, get rid of it
+        if self.filter.has_key('form'):
+            del self.filter['form']
+            
+        # Parse video entries
+        if feed.has_key('entries'):
+            videos = []
+            for video in feed['entries']:
+                videos.append(Video(video))
+            self._videos = videos
+        
+    def _setFeedId(self, feed):
         if feed.has_key("feedId"):
             self.feedId = feed["feedId"]
         else:
@@ -130,18 +150,6 @@ class Feed(object):
                         self.filter[k] = v
                     else:
                         self.filter[k] = v[0] 
-        
-        # Form is not a filter, get rid of it
-        if self.filter.has_key('form'):
-            del self.filter['form']
-            
-        # Parse video entries
-        if feed.has_key('entries'):
-            videos = []
-            for video in feed['entries']:
-                videos.append(Video(video))
-            self._videos = videos
-        
     ## Gets the video entries from the feed
     # @param count whether to ask for the total number of results or not
     # @param startIndex the start index (offset) of entries within the feed to obtain
