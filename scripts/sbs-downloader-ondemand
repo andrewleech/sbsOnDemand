@@ -2,6 +2,8 @@
 # Initial version http://delx.net.au/hg/jamesstuff/rev/706a749fc341
 # Changes by Michael van der Kolff <mvanderkolff@gmail.com>
 
+import sys, os
+sys.path.append(os.path.dirname(__file__) + '/..')
 import SbsOnDemand.Feed
 import signal
 import subprocess
