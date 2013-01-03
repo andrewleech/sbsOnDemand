@@ -10,6 +10,7 @@ import subprocess
 import urllib
 import re
 import shutil
+import datetime
 
 bitrate = 1500
 filenameRE = re.compile(r'[\\/:*?"<>|]')
@@ -43,11 +44,19 @@ def choose(options, allow_multi):
 		except ValueError:
 			pass
 
+def getFilename(video,media):
+	if True in ['news' in k.lower() for k in video.keywords]: # per western wombat suggestion
+		return "{0} {2} ({1}K).flv".format(
+			filenameRE.sub("_",video.title),
+			media.bitrate/1000,
+			datetime.datetime.fromtimestamp(video.availableDate/1000).strftime("%Y-%m-%d"))
+	return "{0} ({1}K).flv".format(filenameRE.sub("_",video.title),media.bitrate/1000)
+
 def download_video(video):
 	possibleMedia = video.getMedia()['content']
 	possibleMedia.sort(key=lambda c: abs(c.bitrate - bitrate*1000))
 	media = possibleMedia[0]
-	filename = "{0} ({1}K).flv".format(filenameRE.sub("_",video.title),media.bitrate/1000)
+	filename = getFilename(video,media)
 	if not (media.baseUrl is None) and media.baseUrl.startswith("rtmp://"):
 		download_rtmp(filename, media)
 	else:
