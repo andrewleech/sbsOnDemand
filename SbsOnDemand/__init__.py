@@ -46,3 +46,10 @@
 #   print media.bitrate, media.baseUrl, media.videoUrl
 # @endcode
 __all__ = ["config","Category","Feed","Media","Program","User","Video"]
+import config
+import Category
+import Feed
+import Media
+import Program
+import User
+import Video

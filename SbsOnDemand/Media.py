@@ -8,6 +8,7 @@ import re
 
 TYPE_RTMP   = 'RTMP secured'
 TYPE_PUBLIC = 'Public'
+TYPE_BROWSER = 'Browser'
 
 ## Represents an exception that occurs when a method is invoked on a media that doesn't support that method
 class InvalidMediaType(Exception):
@@ -57,12 +58,12 @@ class Media(object):
         if self.contentType != "video":
             raise InvalidMediaType();
         if self._smil is None:
-    
             smil_uri = ''
             opener = urllib.FancyURLopener(config.PROXY)
             fullurl = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
             f = opener.open(fullurl)
-            og_video = re.findall('<.*?og:video.*?>', f.read())
+            rsp = f.read()
+            og_video = re.findall('<.*?og:video.*?>', rsp)
             if (len(og_video) < 1):
                 print "Can't find the video part on the webpage.  HELP!"
                 pass #Need to complain loudly
@@ -93,7 +94,8 @@ class Media(object):
         if self.contentType != "video":
             raise InvalidMediaType();
         import xml.dom.minidom
-        self._smilDOM = xml.dom.minidom.parseString(self.getSMIL())
+        smil = self.getSMIL()
+        self._smilDOM = xml.dom.minidom.parseString(smil) if smil else None
     
     ## Get the base url
     # @return the base url (usually for rtmp streams in the form of "rtmp://server/path?auth=token")
@@ -103,17 +105,17 @@ class Media(object):
             raise InvalidMediaType();
         if self._smilDOM is None:
             self._parseSMIL()
-        for meta in self._smilDOM.getElementsByTagName('meta'):
-            if len(meta.getAttribute('base'))>0:
-                return meta.getAttribute('base')
+        if self._smilDOM:
+            for meta in self._smilDOM.getElementsByTagName('meta'):
+                if len(meta.getAttribute('base'))>0:
+                    return meta.getAttribute('base')
     
     ## Get the video url
     # @return the video url (usually for rtmp streams in the form of "mp4:path/video.mp4") 
     # @warning This function is only valid for video media, calling it on other contentTypes will trigger a InvalidMediaType exception
     def getVideoUrl(self):
         if self.contentType != "video":
-            raise InvalidMediaType();
-        print self.assetTypes
+            raise InvalidMediaType()
         if self.assetTypes[0] == TYPE_PUBLIC:
             return self.url
         elif self.assetTypes[0] == TYPE_RTMP:
@@ -121,7 +123,13 @@ class Media(object):
             try:
                 return self._watchableUrlFromSrc(medias[self.bitrate])
             except:
-                return medias.items().pop()[1]
+                if medias:
+                    return medias.items().pop()[1]
+                else:
+                    self.format = TYPE_BROWSER
+                    self.url = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
+                    return self.url
+
     
     ## Get captions for the media
     # @return an array of dict objects, each containing the src, lang, and type of the caption    
@@ -152,12 +160,13 @@ class Media(object):
             self._parseSMIL()
 
         medias = {}
-        for video in self._smilDOM.getElementsByTagName('video'):
-            if len(video.getAttribute('src'))>0:
-                bitrate = int(video.getAttribute('system-bitrate'))
-                src = video.getAttribute('src')
-                medias[bitrate] = src
-                print '{0} {1}'.format(bitrate, src)
+        if self._smilDOM:
+            for video in self._smilDOM.getElementsByTagName('video'):
+                if len(video.getAttribute('src'))>0:
+                    bitrate = int(video.getAttribute('system-bitrate'))
+                    src = video.getAttribute('src')
+                    medias[bitrate] = src
+                    print '{0} {1}'.format(bitrate, src)
         return medias
     
     ## @see getBaseUrl
