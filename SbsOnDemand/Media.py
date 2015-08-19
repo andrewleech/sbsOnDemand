@@ -127,7 +127,7 @@ class Media(object):
                     return medias.items().pop()[1]
                 else:
                     self.format = TYPE_BROWSER
-                    self.url = "{0}{1}".format(config.ONDEMAND_UI_BASE_URI,self.id)
+                    self.url = "{0}{1}".format(config.ONDEMAND_UI_FULLSCREEN_URI,self.id)
                     return self.url
 
     

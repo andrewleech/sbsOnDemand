@@ -16,6 +16,7 @@ MENU_URI = "http://www.sbs.com.au/ondemand/js/video-menu"
 LOGIN_URI = "http://my.sbs.com.au/go/login/onesiteSignIn"
 LOGOUT_URI = "http://www.sbs.com.au/api/Member/logout"
 ONDEMAND_UI_BASE_URI = "http://www.sbs.com.au/ondemand/video/"
+ONDEMAND_UI_FULLSCREEN_URI = "http://www.sbs.com.au/ondemand/video/single/"
 RELEASE_URL_KEY = 'http://resources.sbs.com.au/vod/theplatform/core/current/swf/flvPlayer.swf?releaseUrl'
 VALID_URL_SUFFIX = '.csmil/bitrate=0?v=2.9.4&fp=MAC%2011,5,502,136&r=XBQYK&g=FSCQTSPZYLLE'
 ONDEMAND_UI_VIDEO_CSS_QUERY = 'meta[property="og:video"]'
