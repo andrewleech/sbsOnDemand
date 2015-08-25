@@ -163,12 +163,13 @@ class Feed(object):
                         self.filter[k] = v
                     else:
                         self.filter[k] = v[0] 
+
     ## Gets the video entries from the feed
     # @param count whether to ask for the total number of results or not
     # @param startIndex the start index (offset) of entries within the feed to obtain
     # @param itemsPerPage the maximum number of entries to contain within the feed
     # @return an array of Video objects
-    def getVideos(self, count = False, startIndex = 0, itemsPerPage = 10):
+    def getVideos(self, count = True, startIndex = 0, itemsPerPage = 10):
         # Use cached content if we can
         if self._videos is not None and startIndex == self.startIndex and itemsPerPage <= self.itemsPerPage:  # TODO handle pagination (count=true, range=start-finish, etc.)
             if itemsPerPage < self.itemsPerPage:
