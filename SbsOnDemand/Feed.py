@@ -86,24 +86,25 @@ class Feed(object):
         # We can't retrieve videos without a feed id
         if self.feedId is None and self.url is None and self._url_prefix is None:
             raise Exception("Feed ID not specified")
-        
+
         # Build the URL of the feed
         # This way because it turns out SBS cares about form=json being first...
-        if self.url:
-            return self.url
         url = None
-        if self.feedId:
-            query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
-            if count is True:
-                query.append(('count', 'true'))
-            query += self.filter.items()
-            url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
-        elif self._url_prefix:
-            query = [('form','json')]
-            if count is True:
-                query.append(('count', 'true'))
-            query += self.filter.items()
-            url = self._url_prefix + '?' + urllib.urlencode(query)
+        if self.url:
+            url = self.url
+        else:
+            if self.feedId:
+                query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
+                if count is True:
+                    query.append(('count', 'true'))
+                query += self.filter.items()
+                url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
+            elif self._url_prefix:
+                query = [('form','json')]
+                if count is True:
+                    query.append(('count', 'true'))
+                query += self.filter.items()
+                url = self._url_prefix + '?' + urllib.urlencode(query)
        
         if url:
             # Fetch the feed
