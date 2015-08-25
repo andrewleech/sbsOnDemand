@@ -16,7 +16,7 @@ API_BASE = "http://www.sbs.com.au/api/video_feed"
 LOGIN_URI = "http://my.sbs.com.au/go/login/onesiteSignIn"
 LOGOUT_URI = "http://www.sbs.com.au/api/Member/logout"
 
-#SEARCH_URI = "http://www.sbs.com.au/api/video_search/v2/?q={query}&m=1"
+SEARCH_PREFIX = "http://www.sbs.com.au/api/video_search/v2/"
 SITENAV_URI = "http://www.sbs.com.au/ondemandcms/sitenav"
 
 ONDEMAND_UI_BASE_URI = "http://www.sbs.com.au/ondemand/video/"
@@ -27,7 +27,7 @@ VALID_URL_SUFFIX = '.csmil/bitrate=0?v=2.9.4&fp=MAC%2011,5,502,136&r=XBQYK&g=FSC
 ONDEMAND_UI_VIDEO_CSS_QUERY = 'meta[property="og:video"]'
 #MPX_FEEDID = "dYtmxB"
 MPX_FEEDID = "Bgtm9B"
-SEARCH_FEEDID = "search"
+# SEARCH_FEEDID = "search"
 ALLDATA_FEEDID = "CxeOeDELXKEv"
 SINGLE_FEED_PREFIX = 'http://feed.theplatform.com/f/Bgtm9B/sbs-section-programs/'
 

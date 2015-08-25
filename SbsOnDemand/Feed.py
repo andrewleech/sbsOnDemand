@@ -47,7 +47,7 @@ def getMenuFeeds():
 # @param query the search query 
 # @return A Feed object
 def searchFeed(query):
-    return Feed({"feedId": config.SEARCH_FEEDID, "filter":{"q":query}}) 
+    return Feed({"prefix": config.SEARCH_PREFIX, "filter":{"m":1,"q":query}})
 
 ## Gets a video feed from the specified url
 # @param url the absolute url to fetch the feed from
@@ -68,6 +68,7 @@ class Feed(object):
     def __init__(self,feed):
         self.feedId = None
         self.url = None
+        self._url_prefix = None
         self.title = None
         self.thumbnail = None
         self.filter = {}
@@ -81,25 +82,34 @@ class Feed(object):
     # @param count whether to ask for the total number of results or not
     # @param startIndex the start index (offset) of entries within the feed to obtain
     # @param itemsPerPage the maximum number of entries to contain within the feed
-    def _updateFeed(self, count = False, startIndex = 0, itemsPerPage = 10):
+    def _updateFeed(self, count = True, startIndex = 0, itemsPerPage = 10):
         # We can't retrieve videos without a feed id
-        if self.feedId is None and self.url is None:
+        if self.feedId is None and self.url is None and self._url_prefix is None:
             raise Exception("Feed ID not specified")
         
         # Build the URL of the feed
         # This way because it turns out SBS cares about form=json being first...
         if self.url:
             return self.url
-        query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
-        if count is True:
-            query.append(('count', 'true'))
-        query += self.filter.items()
-        url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
+        url = None
+        if self.feedId:
+            query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
+            if count is True:
+                query.append(('count', 'true'))
+            query += self.filter.items()
+            url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
+        elif self._url_prefix:
+            query = [('form','json')]
+            if count is True:
+                query.append(('count', 'true'))
+            query += self.filter.items()
+            url = self._url_prefix + '?' + urllib.urlencode(query)
        
-        # Fetch the feed
-        page = urllib.urlopen(url)
-        feed = json.load(page)
-        self._parseFeed(feed)
+        if url:
+            # Fetch the feed
+            page = urllib.urlopen(url)
+            feed = json.load(page)
+            self._parseFeed(feed)
         
     ## Parses a feed
     # @param feed the feed to be parsed, in dict form
@@ -114,6 +124,9 @@ class Feed(object):
         try:
             self._setFeedId(feed)
         except:
+            pass
+        if not self.feedId:
+            self._url_prefix = feed.get('prefix', None)
             self.url = feed.get('url', None)
 
         # Form is not a filter, get rid of it
