@@ -44,50 +44,24 @@ DEFAULT_FEEDS = [
 ## Not sure how to use this one
 # http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-xbox-search
 
-## TODO if anyone can figure out how to map sitenav to feed urls without
-## needing to run the js on each sbs website ( in http://www.sbs.com.au/ondemand/app.concat.js )
-
 MENU = [
+    # TODO Featured comes up double menu
+
     ("Programs"  , { "menu": [
         ("Featured"  , {"feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "!Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=!Film"}),
         #("A - Z"   , { "url": ""}),
         ("Last Chance" , { "feedId": 'sbs-video-lastchance', "filter": {"byCategories": "Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies"}}), #"url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-video-lastchance?form=json&count=true&byCategories=Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies&sort=expirationDate%7Casc"}),
         ("Popular" , { "sitenav": "Programs/groups/Popular"}),
         ("Genres" , { "sitenav": "Programs/groups/Genres"}),
-        # "Genres"  : { "menu": {
-        #     "Arts":                         { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Arts") },
-        #     "Comedy":                       { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Comedy") },
-        #     "Culture & Society":            { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Culture & Society") },
-        #     "Documentary":                  { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Documentary") },
-        #     "Drama":                        { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Drama") },
-        #     "Entertainment":                { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Entertainment") },
-        #     "Food":                         { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Food") },
-        #     "Health, Science & Technology": { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Health, Science & Technology") },
-        #     "History":                      { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("History") },
-        #     "Nature & Environment":         { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("Nature & Environment") },
-        #     "News & Current Affairs":       { "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-section-programs/?form=json&count=true&sort=availableDate%7Cdesc&byCategories=" + urlencode("News & Current Affairs") },
-        # }
-        # }
     ]}),
     ("Movies"    , { "menu": [
         ("Featured"  , { "feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=Film"}),
         ("Collections" , { "sitenav": "Movies/groups/Collections"}),
         ("Genres" , { "sitenav": "Movies/groups/Genres"}),
-        # "Genres"  , { "menu":
-        #     "Arts":                         { "url": "" },
-        #     "Comedy":                       { "url": "" },
-        #     "Culture & Society":            { "url": "" },
-        #     "Documentary":                  { "url": "" },
-        #     "Drama":                        { "url": "" },
-        #     "Entertainment":                { "url": "" },
-        #     "Food":                         { "url": "" },
-        #     "Health, Science & Technology": { "url": "" },
-        #     "History":                      { "url": "" },
-        #     "Nature & Environment":         { "url": "" },
-        #     "News & Current Affairs":       { "url": "" },
-        # }
-        # }
     ]}),
+
+    # TODO fill out below
+
     ("Channels"  , { "menu": [
         ("SBS",                    { "url": "" }),
         ("SBS TWO",                { "url": "" }),

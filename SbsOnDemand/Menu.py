@@ -1,7 +1,6 @@
 ## @namespace SbsOnDemand::Category
 # Module for managing menus
 
-import os
 try:
     import simplejson as json
 except ImportError:
@@ -10,9 +9,7 @@ try:
     from urlparse import parse_qs
 except ImportError:
     from cgi import parse_qs
-import urlparse
 import urllib
-import config
 
 import config
 
@@ -70,30 +67,38 @@ class Menu(object):
                     if branch in elements:
                         elements = elements[branch]
 
-
             # check if elements is genre / poular and parse accordingly.
             if tree[-1] == "Genres":
                 for row in elements['children']:
                     name = row['title']
-                    #menu.append((name,Category({'media$name':name}).getFeed('sbs-section-programs')))
                     menu.append((name,Menu(path='/'.join((self.path, name)),
                                          name=name)))
-            if tree[-2] == "Genres":
+            elif tree[-2] == "Genres":
+                # The sitemap doesn't always match the byCategory filters :-(
+                genremap = {
+                    "Feature Documentaries" : "Documentary Feature",
+                    "Mystery & Crime"       : "Mystery Crime"
+                }
+
                 from Category import Category
                 name = tree[-1]
-                menu = (name,Category({'media$name':name}).getFeed('sbs-section-programs'))
+                name = genremap.get(name, name) # take mapped name if it has mapping
+                category = 'Film/'+name if 'Movies' in tree else name
+                menu = (name,Category({'media$name':category}).getFeed('sbs-section-programs'))
 
             elif tree[-1] == "Popular":
                 for row in elements['children']:
                     name = row['title']
-                    # menu.append((name,Feed.searchFeed(query=name)))
                     menu.append((name,Menu(path='/'.join((self.path, name)),
                                          name=name)))
-            if tree[-2] == "Popular":
+            elif tree[-2] == "Popular":
                 import Feed
                 name = tree[-1]
-                ## todo: find a better way to parse popular href/title into a feed url
+                ## TODO: find a better way to parse popular href/title into a feed url
+                ## without needing to run the js on each sbs website
+                ## # ( in http://www.sbs.com.au/ondemand/app.concat.js )
                 menu = (name,Feed.searchFeed(query=name))
+
 
         # from pprint import pprint
         # print ""
