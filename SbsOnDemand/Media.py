@@ -130,6 +130,17 @@ class Media(object):
                     self.url = "{0}{1}".format(config.ONDEMAND_UI_FULLSCREEN_URI,self.id)
                     return self.url
 
+    ## Get the browser video url
+    # @return the video url (usually for rtmp streams in the form of "mp4:path/video.mp4")
+    # @warning This function is only valid for video media, calling it on other contentTypes will trigger a InvalidMediaType exception
+    def getBrowserUrl(self):
+        if self.contentType != "video":
+            raise InvalidMediaType()
+        self.format = TYPE_BROWSER
+        self.url = "{0}{1}".format(config.ONDEMAND_UI_FULLSCREEN_URI,self.id)
+        return self.url
+
+
     
     ## Get captions for the media
     # @return an array of dict objects, each containing the src, lang, and type of the caption    
@@ -173,5 +184,7 @@ class Media(object):
     baseUrl = property(getBaseUrl)
     ## @see getVideoUrl
     videoUrl = property(getVideoUrl)
+    ## @see getBrowserUrl
+    browserUrl = property(getBrowserUrl)
     ## @see getCaptions
     captions = property(getCaptions)
