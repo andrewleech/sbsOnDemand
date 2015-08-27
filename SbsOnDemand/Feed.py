@@ -82,7 +82,7 @@ class Feed(object):
     # @param count whether to ask for the total number of results or not
     # @param startIndex the start index (offset) of entries within the feed to obtain
     # @param itemsPerPage the maximum number of entries to contain within the feed
-    def _updateFeed(self, count = True, startIndex = 0, itemsPerPage = 10):
+    def _updateFeed(self, count = True, startIndex = 0, itemsPerPage = 10, sort = 'pubDate'):
         # We can't retrieve videos without a feed id
         if self.feedId is None and self.url is None and self._url_prefix is None:
             raise Exception("Feed ID not specified")
@@ -97,6 +97,8 @@ class Feed(object):
                 query = [('form','json'),('range',str(startIndex) + '-' + str(startIndex + itemsPerPage))]
                 if count is True:
                     query.append(('count', 'true'))
+                if sort:
+                    query.append(('sort', sort))
                 query += self.filter.items()
                 url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
             elif self._url_prefix:
