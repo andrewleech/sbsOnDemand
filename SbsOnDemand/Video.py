@@ -10,7 +10,7 @@ import urllib, urlparse
 import config
 import xml.etree.ElementTree as xml
 from Category import Category
-from Media import Media
+from Media import Media, TYPE_BROWSER
 
 ## This exception is raised when a method is invoked on a Video object that requires an ID
 class NoIDException(Exception):
@@ -56,6 +56,7 @@ class Video(object):
         self.availableDate = params.get('media$availableDate',None)
         self.expirationDate = params.get('media$expirationDate',None)
         self.programName = params.get('pl1$programName',None)
+        self.pilatDealcode = params.get('pl1$pilatDealcode',None)
         keywords = params.get('media$keywords',None)
         if keywords is not None:
             self.keywords = keywords.split(",")
@@ -115,7 +116,14 @@ class Video(object):
             return self._media
         else:
             return self._media
-    
+
+    ## Get the browser video url
+    # @return the url to playback video is a web browser
+    def getBrowserUrl(self):
+        format = TYPE_BROWSER
+        url = "{0}{1}".format(config.ONDEMAND_UI_FULLSCREEN_URI,self.id)
+        return url
+
     ## @see getMedia
     media = property(getMedia)
     
