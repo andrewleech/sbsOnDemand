@@ -74,17 +74,42 @@ class Menu(object):
                     menu.append((name,Menu(path='/'.join((self.path, name)),
                                          name=name)))
             elif tree[-2] == "Genres":
+                from Feed import Feed
+
+                # from Category import Category
+                name = tree[-1]
+
                 # The sitemap doesn't always match the byCategory filters :-(
                 genremap = {
+                    "Culture & Society"     : "Factual/Culture and Society",
+                    "Nature & Environment"  : "Factual/Nature and Environment",
+                    "News & Current Affairs": "News and Current Affairs",
                     "Feature Documentaries" : "Documentary Feature",
-                    "Mystery & Crime"       : "Mystery Crime"
+                    "Mystery & Crime"       : "Mystery Crime",
+                    "History"               : "Factual/History",
+                    "Health, Science & Technology" : "Factual/Health + Science and Technology",
                 }
-
-                from Category import Category
-                name = tree[-1]
                 name = genremap.get(name, name) # take mapped name if it has mapping
                 category = 'Film/'+name if 'Movies' in tree else name
-                menu = (name,Category({'media$name':category}).getFeed('sbs-section-programs'))
+                filt = { 'byCategories':category,
+                         # 'byCustomValue':"{useType}{Full%20Episode}"
+                         }
+
+                if name in [
+                    "Culture & Society"    ,
+                    "Feature Documentaries",
+                    "Mystery & Crime"      ,
+                    "Nature & Environment" ,
+                    "History",
+                    "Health, Science & Technology",
+                ]:
+                    feedid = 'sbs-section-sbstv'
+                    # filt["byCustomValue"] = "{useType}{Full%20Episode}"
+                else:
+                    feedid = 'sbs-section-programs'
+
+                # menu = (name,Category({'media$name':category}).getFeed(feedid))
+                menu = (name, Feed({'feedId':feedid, 'filter':filt}))
 
             elif tree[-1] == "Popular":
                 for row in elements['children']:

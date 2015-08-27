@@ -48,11 +48,10 @@ MENU = [
     # TODO Featured comes up double menu
 
     ("Programs"  , { "menu": [
-        ("Featured"  , {"feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "!Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=!Film"}),
-        #("A - Z"   , { "url": ""}),
-        ("Last Chance" , { "feedId": 'sbs-video-lastchance', "filter": {"byCategories": "Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies"}}), #"url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-video-lastchance?form=json&count=true&byCategories=Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies&sort=expirationDate%7Casc"}),
-        ("Popular" , { "sitenav": "Programs/groups/Popular"}),
-        ("Genres" , { "sitenav": "Programs/groups/Genres"}),
+        ("Featured"     , { "feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "!Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=!Film"}),
+        ("Last Chance"  , { "feedId": 'sbs-video-lastchance', "filter": {"byCategories": "Section/Programs,Drama|Comedy|Documentary|Arts|Entertainment|Food|Factual|Movies"}}), #"url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-video-lastchance?form=json&count=true&byCategories=Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies&sort=expirationDate%7Casc"}),
+        ("Popular"      , { "sitenav": "Programs/groups/Popular"}),
+        ("Genres"       , { "sitenav": "Programs/groups/Genres"}),
     ]}),
     ("Movies"    , { "menu": [
         ("Featured"  , { "feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=Film"}),
@@ -69,6 +68,6 @@ MENU = [
         ("World Movies",           { "url": "" }),
         ("On Demand Exclusives",   { "url": "" }),
     ]}),
-    ("News"      , { "url": "" }),
-    ("Sport"     , { "url": "" }),
+    ("News"      , { "feedId": "sbs-section-sbstv", "filter": {"byCategories": "News and Current Affairs"} }),
+    ("Sport"     , { "feedId": "sbs-section-sbstv", "filter": {"byCategories": "Sport"} }),
 ]
