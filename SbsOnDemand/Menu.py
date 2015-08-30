@@ -28,9 +28,12 @@ class Menu(object):
 
     ## Creates a Category object
     # @param params Dictionary of parameters, should include `media$name` and `media$scheme`
-    def __init__(self, path="", name="SBS On Demand"):
+    def __init__(self, path="", startIndex=0, itemsPerPage=40, name="SBS On Demand"):
         self.path = path
         self.name = name
+        self.startIndex = startIndex
+        self.itemsPerPage = itemsPerPage
+
         self.children = {}
         self._sitenav = None
 
@@ -46,26 +49,27 @@ class Menu(object):
 
 
     def _parseSitenav(self, sitenav_path):
+        """
+        Sitenav would be better fed through phantomjs to load the target page and parse the form=json network requests
+        Can use seleneium-rc to captureNetworkTraffic=true
+        :param sitenav_path:
+        :return:
+        """
         menu = []
         elements = self._getSitenav()
-        branch = ""
-        prev_branch = ""
-        # print sitenav_path
-        # print elements
-        # print ""
+
         if elements:
             tree = sitenav_path.split('/')
             for branch in tree:
-                # print "branch="+str(branch)
-                # print elements
-                # print ""
                 if isinstance(elements, list):
                     for element in elements:
                         if branch == element.get('title'):
                             elements = element
+                            break
                 elif isinstance(elements, dict):
                     if branch in elements:
                         elements = elements[branch]
+                        break
 
             # check if elements is genre / poular and parse accordingly.
             if tree[-1] == "Genres":
@@ -79,7 +83,7 @@ class Menu(object):
                 # from Category import Category
                 name = tree[-1]
 
-                # The sitemap doesn't always match the byCategory filters :-(
+                # The sitemap doesn't always match the byCategory queries :-(
                 genremap = {
                     "Culture & Society"     : "Factual/Culture and Society",
                     "Nature & Environment"  : "Factual/Nature and Environment",
@@ -109,7 +113,7 @@ class Menu(object):
                     feedid = 'sbs-section-programs'
 
                 # menu = (name,Category({'media$name':category}).getFeed(feedid))
-                menu = (name, Feed({'feedId':feedid, 'filter':filt}))
+                menu = (name, Feed({'feedId':feedid, 'query':filt}))
 
             elif tree[-1] == "Popular":
                 for row in elements['children']:
@@ -124,25 +128,36 @@ class Menu(object):
                 ## # ( in http://www.sbs.com.au/ondemand/app.concat.js )
                 menu = (name,Feed.searchFeed(query=name))
 
+            elif tree[-1] == "Collections":
+                for row in elements['children']:
+                    name = row['title']
+                    menu.append((name,Menu(path='/'.join((self.path, name)),
+                                         name=name)))
+            elif tree[-2] == "Collections":
+                import Feed
+                name = tree[-1]
+                ## TODO: find a better way to parse popular href/title into a feed url
+                ## without needing to run the js on each sbs website
+                ## # ( in http://www.sbs.com.au/ondemand/app.concat.js )
+                menu = (name,Feed.searchFeed(query=name))
 
-        # from pprint import pprint
-        # print ""
-        # pprint(elements)
-        # pprint(menu)
+
         return menu
 
     ## Gets current menu
     def getMenu(self):
+        from Video import Video
+        from Feed import Feed
+
         menu = []
+
         if not self.path:
             for name, details in config.MENU:
                 menu.append((name,Menu(path=name,
                                  name=name)))
         else:
             menu_dict = dict(config.MENU)
-            # tree = os.path.split(self.path)
             tree = self.path.split('/')
-            # tree = urlparse.urlparse(self.path)
             branch = ""
             child = {}
             idx = 0
@@ -151,18 +166,67 @@ class Menu(object):
                 child = menu_dict[branch]
                 if 'menu' in child:
                     menu_dict = dict(child['menu'])
+
+                elif 'sitenav' in child:
+                    child = self._parseSitenav('/'.join([child['sitenav']] + tree[idx+1:]))
+                    menu_dict = dict([child])
+
+                elif 'feedId' in child:
+                    from Feed import Feed
+                    shows = {}
+                    feed = Feed(child)
+                    videos = feed.getVideos(startIndex = self.startIndex,
+                                                        itemsPerPage = self.itemsPerPage)
+
+                    for video in videos:
+                        if isinstance(video, Video):
+                            programName = video.programName if video.programName else video.title
+                            video.programName = programName
+                            program = shows.get(programName, [])
+                            program.append(video)
+                            shows[programName] = sorted(program, key=lambda f:f.pubDate)
+
+                    if len(shows.values()) and len(shows.values()) != len(videos): # Grouping did find differences
+                        feedPath = tree[idx+1:]
+                        if not feedPath:
+                            videos = shows.values()
+                            child = [(video[0].programName, video) for video in videos]
+                            # for show in shows.keys():
+                            #     new_params = params.copy()
+                            #     new_params['feedPath'] = show
+                            #     new_params['name'] = show
+                            #     # TODO add some description, thumb?
+                            #     addDir(params=new_params, folder=True)
+                            #     videos = [] # don't display any more videos
+                        else:
+                            if len(feedPath):
+                                videos = shows.get(feedPath[0], [])
+                                if len(videos):
+                                    single_feed = videos[0]
+                                    if single_feed.pilatDealcode:
+                                        byCustomValue = "{pilatDealcode}{%s},{useType}{Full Episode}" % single_feed.pilatDealcode
+                                        series_feed = Feed({"feedId": feed.feedId,
+                                                                        "query": {"byCustomValue": byCustomValue}})
+                                        videos = series_feed.getVideos(startIndex = self.startIndex, itemsPerPage = self.itemsPerPage)
+                                        child = [(video.title, video) for video in videos]
+                                        break
+                    # child = [(video.title, video) for video in videos]
+
                 else:
                     break
+
             if 'menu' in child:
                 for name, details in child['menu']:
                     menu.append((name,Menu(path='/'.join((self.path, name)),
                                      name=name)))
-            elif 'sitenav' in child:
-                menu = self._parseSitenav('/'.join([child['sitenav']] + tree[idx+1:]))
-
-            elif 'feedId' in child:
-                import Feed
-                menu = [(branch, Feed.Feed(child))]
+            else:
+                menu = child
+            # elif 'sitenav' in child:
+            #     menu = self._parseSitenav('/'.join([child['sitenav']] + tree[idx+1:]))
+            #
+            # elif 'feedId' in child:
+            #     import Feed
+            #     menu = [(branch, Feed.Feed(child))]
 
         return menu
 

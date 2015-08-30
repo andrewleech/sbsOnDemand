@@ -47,7 +47,7 @@ def getMenuFeeds():
 # @param query the search query 
 # @return A Feed object
 def searchFeed(query):
-    return Feed({"prefix": config.SEARCH_PREFIX, "filter":{"m":1,"q":query}})
+    return Feed({"prefix": config.SEARCH_PREFIX, "query":{"m":1,"q":query}})
 
 ## Gets a video feed from the specified url
 # @param url the absolute url to fetch the feed from
@@ -71,7 +71,7 @@ class Feed(object):
         self._url_prefix = None
         self.title = None
         self.thumbnail = None
-        self.filter = {}
+        self.query = {}
         self._totalResults = None
         self.startIndex = None
         self.itemsPerPage = None
@@ -99,13 +99,13 @@ class Feed(object):
                     query.append(('count', 'true'))
                 if sort:
                     query.append(('sort', sort))
-                query += self.filter.items()
+                query += self.query.items()
                 url = config.API_BASE + '/f/' + config.MPX_FEEDID + '/' + self.feedId + '?' + urllib.urlencode(query)
             elif self._url_prefix:
                 query = [('form','json')]
                 if count is True:
                     query.append(('count', 'true'))
-                query += self.filter.items()
+                query += self.query.items()
                 url = self._url_prefix + '?' + urllib.urlencode(query)
        
         if url:
@@ -119,7 +119,7 @@ class Feed(object):
     def _parseFeed(self, feed):
         self.title = feed.get("name", self.title)
         self.thumbnail = feed.get("thumbnail", self.thumbnail)
-        self.filter = feed.get("filter", self.filter)
+        self.query = feed.get("query", self.query)
         self._totalResults = feed.get('totalResults', self._totalResults)
         self.startIndex = feed.get('startIndex', self.startIndex)
         self.itemsPerPage = feed.get('itemsPerPage', self.itemsPerPage)
@@ -132,9 +132,9 @@ class Feed(object):
             self._url_prefix = feed.get('prefix', None)
             self.url = feed.get('url', None)
 
-        # Form is not a filter, get rid of it
-        if self.filter.has_key('form'):
-            del self.filter['form']
+        # Form is not a query, get rid of it
+        if self.query.has_key('form'):
+            del self.query['form']
             
         # Parse video entries
         if feed.has_key('entries'):
@@ -160,12 +160,12 @@ class Feed(object):
                     raise Exception("Cannot extract feed identifier from url")
                 self.feedId = match.group(1)
                 
-                # Extract url query parameters into filter dict
+                # Extract url query parameters into query dict
                 for k, v in parse_qs(parsedurl[4]).iteritems(): #parsedurl.query
                     if len(v)>1:
-                        self.filter[k] = v
+                        self.query[k] = v
                     else:
-                        self.filter[k] = v[0] 
+                        self.query[k] = v[0] 
 
     ## Gets the video entries from the feed
     # @param count whether to ask for the total number of results or not

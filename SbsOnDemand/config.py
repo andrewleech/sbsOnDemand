@@ -48,15 +48,46 @@ MENU = [
     # TODO Featured comes up double menu
 
     ("Programs"  , { "menu": [
-        ("Featured"     , { "feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "!Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=!Film"}),
-        ("Last Chance"  , { "feedId": 'sbs-video-lastchance', "filter": {"byCategories": "Section/Programs,Drama|Comedy|Documentary|Arts|Entertainment|Food|Factual|Movies"}}), #"url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-video-lastchance?form=json&count=true&byCategories=Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies&sort=expirationDate%7Casc"}),
-        ("Popular"      , { "sitenav": "Programs/groups/Popular"}),
-        ("Genres"       , { "sitenav": "Programs/groups/Genres"}),
+        ("Featured"     , { "feedId": 'sbs-featured-programs-prod', "query": {"byCategories": "!Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=!Film"}),
+        ("Last Chance"  , { "feedId": 'sbs-video-lastchance', "query": {"byCategories": "Section/Programs,Drama|Comedy|Documentary|Arts|Entertainment|Food|Factual|Movies"}}), #"url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-video-lastchance?form=json&count=true&byCategories=Section%2FPrograms,Drama%7CComedy%7CDocumentary%7CArts%7CEntertainment%7CFood%7CFactual%7CMovies&sort=expirationDate%7Casc"}),
+        ("Genres"       , { "menu": [
+
+            ("Arts",                         { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Arts"} }),
+            ("Comedy",                       { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Comedy"} }),
+            ("Culture & Society",            { "feedId": "sbs-section-sbstv",     "query" : {"byCategories" : "Factual/Culture and Society"} }),
+            ("Documentary",                  { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Documentary"} }),
+            ("Drama",                        { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Drama"} }),
+            ("Entertainment",                { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Entertainment"} }),
+            ("Food",                         { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Food"} }),
+            ("Health, Science & Technology", { "feedId": "sbs-section-sbstv",     "query" : {"byCategories" : "Factual/Health + Science and Technology"} }),
+            ("History",                      { "feedId": "sbs-section-sbstv",     "query" : {"byCategories" : "Factual/History"} }),
+            ("Nature & Environment",         { "feedId": "sbs-section-sbstv",     "query" : {"byCategories" : "Factual/Nature and Environment"} }),
+            ("News & Current Affairs",       { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "News and Current Affairs"} }),
+        ]}),
     ]}),
+
     ("Movies"    , { "menu": [
-        ("Featured"  , { "feedId": 'sbs-featured-programs-prod', "filter": {"byCategories": "Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=Film"}),
+        ("Featured"  , { "feedId": 'sbs-featured-programs-prod', "query": {"byCategories": "Film"}}), # "url": "http://www.sbs.com.au/api/video_feed/f/Bgtm9B/sbs-featured-programs-prod?form=json&count=true&sort=pubDate%7Casc&byCategories=Film"}),
         ("Collections" , { "sitenav": "Movies/groups/Collections"}),
-        ("Genres" , { "sitenav": "Movies/groups/Genres"}),
+        ("Genres" , { "menu": [
+            ("Action",              { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Action Adventure"} }),
+            ("Animation",           { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Animation"} }),
+            ("Biography",           { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Biography"} }),
+            ("Classic",             { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Classic"} }),
+            ("Comedy",              { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Comedy"} }),
+            ("Drama",               { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Drama"} }),
+            ("Feature Documentary", { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Documentary Feature"} }),
+            ("Fantasy",             { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Fantasy"} }),
+            ("History",             { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/History"} }),
+            ("Horror",              { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Horror"} }),
+            ("Martial Arts",        { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Martial Arts"} }),
+            ("Mystery & Crime",     { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Mystery Crime"} }),
+            ("Romance",             { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Romance"} }),
+            ("Romantic Comedy",     { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Romantic Comedy"} }),
+            ("Science Fiction",     { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Science Fiction"} }),
+            ("Thriller",            { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/Thriller"} }),
+            ("War",                 { "feedId": "sbs-section-programs",  "query" : {"byCategories" : "Section/Programs,Film,Film/War"} }),
+        ]}),
     ]}),
 
     # TODO fill out below
@@ -68,6 +99,6 @@ MENU = [
         ("World Movies",           { "url": "" }),
         ("On Demand Exclusives",   { "url": "" }),
     ]}),
-    ("News"      , { "feedId": "sbs-section-sbstv", "filter": {"byCategories": "News and Current Affairs"} }),
-    ("Sport"     , { "feedId": "sbs-section-sbstv", "filter": {"byCategories": "Sport"} }),
+    ("News"      , { "feedId": "sbs-section-sbstv", "query": {"byCategories": "News and Current Affairs"} }),
+    ("Sport"     , { "feedId": "sbs-section-sbstv", "query": {"byCategories": "Sport"} }),
 ]

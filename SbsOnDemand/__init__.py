@@ -45,7 +45,7 @@
 # for media in video.media['content']:
 #   print media.bitrate, media.baseUrl, media.videoUrl
 # @endcode
-__all__ = ["config","Category","Feed","Media","Program","User","Video"]
+__all__ = ["config","Category","Feed","Media","Program","User","Video","Menu"]
 import config
 import Category
 import Feed
